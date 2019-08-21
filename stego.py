@@ -3,12 +3,11 @@
 # and the hidden text t.
 
 # TODO:
-# m) renombrar para que no sea tan copypaste :P
-# k) hacer error handling
 # agregar al principio cuanto leer para poder decodificar
 # ver encriptar el mensaje
 # parametro k del enunciado
 
+import base64
 import os
 import bitarray
 from PIL import Image
@@ -22,6 +21,38 @@ def set_pixel(old_color, bit_array, i):
     return new_color
 
 
+def message_decode(image, k):
+    """ Decode a hidden message from the image.
+
+    :arg1: TODO
+    :returns: TODO
+
+    """
+    im = Image.open(image)
+
+    extracted = ''
+
+    pixels = im.load()
+
+    for x in range(0, im.width):
+        r, g, b = pixels[x, 0]
+
+        # Store LSB of each color channel of each pixel
+        extracted += bin(r)[-1]
+        extracted += bin(g)[-1]
+        extracted += bin(b)[-1]
+
+    chars = []
+    for i in range(int(len(extracted) / 8)):
+        byte = extracted[i*8: (i+1)*8]
+        chars.append(
+            chr(int(''.join([str(bit) for bit in byte]), 2)))
+
+    # Don't forget that the message was base64-encoded
+    flag = base64.b64decode(''.join(chars).encode('ascii', 'ignore'))
+    print(flag)
+
+
 def message_encode(image, k, hidden_text):
     """ Encode the given message in the image, up to k bits (?).
 
@@ -29,18 +60,21 @@ def message_encode(image, k, hidden_text):
         k: positive int
         hidden_text: string
     """
-    encoded_message = hidden_text.encode()
+    encoded_message = base64.b64encode(hidden_text.encode('ascii'))
 
     # Converts the message into an array of bits
     ba = bitarray.bitarray()
     ba.frombytes(encoded_message)
     bit_array = [int(i) for i in ba]
 
-    # try
-    im = Image.open(image)
-    stego_im = (os.path.splitext(image)[0] + "_lsb.png")
-    im.save(stego_im)
-    # catch
+    try:
+        im = Image.open(image)
+        stego_im = (os.path.splitext(image)[0] + "_lsb.png")
+        im.save(stego_im)
+    except (OSError, IOError) as e:
+        print("Non existent file")
+        print(e)
+        return
 
     im = Image.open(stego_im)
     width, height = im.size
@@ -87,6 +121,8 @@ def main():
     filepath = input("Enter path to file:  ")
 
     message_encode(filepath, 666, message)
+    print("jajajaj ahora DECODIFICQAMOS1!!!!!!11")
+    message_decode((os.path.splitext(filepath)[0] + "_lsb.png"), 666)
 
 
 if __name__ == "__main__":
