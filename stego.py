@@ -13,12 +13,17 @@ import bitarray
 from PIL import Image
 
 
-def set_pixel(old_color, bit_array, i):
-    color_bit = bin(old_color)
-    color_new_last_bit = bit_array[i]
-    new_color = int(color_bit[:-1] + str(color_new_last_bit), 2)
+def set_pixel(old_color, bit_array, i, k):
+    old_color = bin(old_color)
+    old_bits = old_color[:-k]
+    new_chunk = bit_array[i:i+k].copy()
+    # new_chunk = map(str, new_chunk)
 
-    return new_color
+    print(type(old_bits))
+    print(type(new_chunk))
+
+    new_color = old_bits + ''.join(str(b) for b in new_chunk)
+    return int(new_color, 2)
 
 
 def message_decode(image, k):
@@ -38,9 +43,9 @@ def message_decode(image, k):
         r, g, b = pixels[x, 0]
 
         # Store LSB of each color channel of each pixel
-        extracted += bin(r)[-1]
-        extracted += bin(g)[-1]
-        extracted += bin(b)[-1]
+        extracted += bin(r)[-k:]
+        extracted += bin(g)[-k:]
+        extracted += bin(b)[-k:]
 
     chars = []
     for i in range(int(len(extracted) / 8)):
@@ -50,7 +55,7 @@ def message_decode(image, k):
 
     # Don't forget that the message was base64-encoded
     flag = base64.b64decode(''.join(chars).encode('ascii', 'ignore'))
-    print(flag)
+    return flag
 
 
 def message_encode(image, k, hidden_text):
@@ -80,6 +85,11 @@ def message_encode(image, k, hidden_text):
     width, height = im.size
     pixels = im.load()
 
+    # padding
+    pad = len(bit_array) % k
+    if pad != 0:
+        bit_array = bit_array + list('0' * pad)
+
     i = 0
     for x in range(0, width):
         red, green, blue = pixels[x, 0]
@@ -94,18 +104,18 @@ def message_encode(image, k, hidden_text):
 
         if i < len(bit_array):
             # Red pixel
-            new_bit_red_pixel = set_pixel(red, bit_array, i)
-            i += 1
+            new_bit_red_pixel = set_pixel(red, bit_array, i, k)
+            i += k
 
         if i < len(bit_array):
             # Green pixel
-            new_bit_green_pixel = set_pixel(green, bit_array, i)
-            i += 1
+            new_bit_green_pixel = set_pixel(green, bit_array, i, k)
+            i += k
 
         if i < len(bit_array):
             # Blue pixel
-            new_bit_blue_pixel = set_pixel(blue, bit_array, i)
-            i += 1
+            new_bit_blue_pixel = set_pixel(blue, bit_array, i, k)
+            i += k
 
         pixels[x, 0] = (new_bit_red_pixel, new_bit_green_pixel,
                         new_bit_blue_pixel)
@@ -120,9 +130,10 @@ def main():
     message = input("Enter SECRET message to hid in image:  ")
     filepath = input("Enter path to file:  ")
 
-    message_encode(filepath, 666, message)
+    message_encode(filepath, 2, message)
     print("jajajaj ahora DECODIFICQAMOS1!!!!!!11")
-    message_decode((os.path.splitext(filepath)[0] + "_lsb.png"), 666)
+    msg = message_decode((os.path.splitext(filepath)[0] + "_lsb.png"), 2)
+    print(msg)
 
 
 if __name__ == "__main__":
