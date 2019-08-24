@@ -98,9 +98,6 @@ def message_encode(image, k, hidden_text):
     else:
         print("Message way too long for given image.")
         return 0
-    print("mensaje:", len(bit_array))
-    print("k:", k)
-    print("total pixels:", total_pixels)
 
     # padding
     pad = len(bit_array) % k
@@ -137,8 +134,6 @@ def message_encode(image, k, hidden_text):
 
             pixels[x, y] = (new_bit_red_pixel, new_bit_green_pixel,
                             new_bit_blue_pixel)
-            # print("[+] \tAfter: (%d,%d,%d)" %
-            # (new_bit_red_pixel, new_bit_green_pixel, new_bit_blue_pixel))
 
     im.save(stego_im)
 
