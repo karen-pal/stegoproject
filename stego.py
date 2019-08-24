@@ -38,18 +38,20 @@ def message_decode(image, k):
     pixels = im.load()
 
     for x in range(0, im.width):
-        r, g, b = pixels[x, 0]
+        for y in range(0, im.height):
+            r, g, b = pixels[x, y]
 
-        # Store LSB of each color channel of each pixel
-        extracted += bin(r)[-k:]
-        extracted += bin(g)[-k:]
-        extracted += bin(b)[-k:]
+            # Store LSB of each color channel of each pixel
+            extracted += bin(r)[-k:]
+            extracted += bin(g)[-k:]
+            extracted += bin(b)[-k:]
 
     chars = []
     for i in range(int(len(extracted) / 8)):
         byte = extracted[i*8: (i+1)*8]
-        chars.append(
-            chr(int(''.join([str(bit) for bit in byte]), 2)))
+        str_byte = ''.join([str(bit) for bit in byte])
+        str_byte = ''.join(str_byte.replace('0b', 'b').split('b'))
+        chars.append(chr(int(str_byte, 2)))
 
     # Don't forget that the message was base64-encoded
     flag = base64.b64decode(''.join(chars).encode('ascii', 'ignore'))
@@ -81,7 +83,21 @@ def message_encode(image, k, hidden_text):
 
     im = Image.open(stego_im)
     width, height = im.size
+    total_pixels = width * height
     pixels = im.load()
+
+    if len(bit_array) <= total_pixels * 3:
+        k = 1
+    elif len(bit_array) <= total_pixels * 6:
+        k = 2
+    elif len(bit_array) <= total_pixels * 9:
+        k = 3
+    else:
+        print("Message way too long for given image.")
+        return 0
+    print("mensaje:", len(bit_array))
+    print("k:", k)
+    print("total pixels:", total_pixels)
 
     # padding
     pad = len(bit_array) % k
@@ -90,37 +106,40 @@ def message_encode(image, k, hidden_text):
 
     i = 0
     for x in range(0, width):
-        red, green, blue = pixels[x, 0]
+        for y in range(0, height):
+            if i >= len(bit_array):
+                break
 
-        print("[+] Pixel : [%d,%d]" % (x, 0))
-        print("[+] \tBefore : (%d,%d,%d)" % (red, green, blue))
+            red, green, blue = pixels[x, y]
 
-        # Default values in case no bit has to be modified
-        new_bit_red_pixel = red
-        new_bit_green_pixel = green
-        new_bit_blue_pixel = blue
+            # Default values in case no bit has to be modified
+            new_bit_red_pixel = red
+            new_bit_green_pixel = green
+            new_bit_blue_pixel = blue
 
-        if i < len(bit_array):
-            # Red pixel
-            new_bit_red_pixel = set_pixel(red, bit_array, i, k)
-            i += k
+            if i < len(bit_array):
+                # Red pixel
+                new_bit_red_pixel = set_pixel(red, bit_array, i, k)
+                i += k
 
-        if i < len(bit_array):
-            # Green pixel
-            new_bit_green_pixel = set_pixel(green, bit_array, i, k)
-            i += k
+            if i < len(bit_array):
+                # Green pixel
+                new_bit_green_pixel = set_pixel(green, bit_array, i, k)
+                i += k
 
-        if i < len(bit_array):
-            # Blue pixel
-            new_bit_blue_pixel = set_pixel(blue, bit_array, i, k)
-            i += k
+            if i < len(bit_array):
+                # Blue pixel
+                new_bit_blue_pixel = set_pixel(blue, bit_array, i, k)
+                i += k
 
-        pixels[x, 0] = (new_bit_red_pixel, new_bit_green_pixel,
-                        new_bit_blue_pixel)
-        print("[+] \tAfter: (%d,%d,%d)" %
-              (new_bit_red_pixel, new_bit_green_pixel, new_bit_blue_pixel))
+            pixels[x, y] = (new_bit_red_pixel, new_bit_green_pixel,
+                            new_bit_blue_pixel)
+            # print("[+] \tAfter: (%d,%d,%d)" %
+            # (new_bit_red_pixel, new_bit_green_pixel, new_bit_blue_pixel))
 
     im.save(stego_im)
+
+    return k
 
 
 def main():
@@ -128,9 +147,9 @@ def main():
     message = input("Enter SECRET message to hid in image:  ")
     filepath = input("Enter path to file:  ")
 
-    message_encode(filepath, 2, message)
+    k = message_encode(filepath, 2, message)
     print("jajajaj ahora DECODIFICQAMOS1!!!!!!11")
-    msg = message_decode((os.path.splitext(filepath)[0] + "_lsb.png"), 2)
+    msg = message_decode((os.path.splitext(filepath)[0] + "_lsb.png"), k)
     print(msg)
 
 
