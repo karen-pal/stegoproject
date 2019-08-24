@@ -37,7 +37,7 @@ def message_decode(image, k):
 
     pixels = im.load()
 
-    for x in range(0, im.width):
+    for x in range(12, im.width):
         for y in range(0, im.height):
             r, g, b = pixels[x, y]
 
@@ -89,6 +89,34 @@ def message_encode(image, k, hidden_text):
     total_pixels = width * height
     pixels = im.load()
 
+    msg_len = bin(len(bit_array)).replace("0b", "")
+
+    # Padding to fit into 32 bits
+    msg_len = "0" * (32 - len(msg_len)) + msg_len
+    msg_len_ba = bitarray.bitarray()
+    msg_len_ba.frombytes(msg_len.encode())
+    msg_len_ba = [int(i) for i in msg_len_ba]
+
+    # Encode message length into the first 11 pixels
+    i = 0
+    for x in range(0, 12):
+        red, green, blue = pixels[x, 0]
+
+        new_red = set_pixel(red, msg_len_ba, i, 1)
+        i += 1
+
+        new_green = set_pixel(green, msg_len_ba, i, 1)
+        i += 1
+
+        if x == 11 or i == 32:
+            break
+
+        new_blue = set_pixel(blue, msg_len_ba, i, 1)
+        i += 1
+
+        pixels[x, 0] = (new_red, new_green, new_blue)
+
+    # Calculate a proper k value
     if len(bit_array) <= total_pixels * 3:
         k = 1
     elif len(bit_array) <= total_pixels * 6:
@@ -105,7 +133,7 @@ def message_encode(image, k, hidden_text):
         bit_array = bit_array + list('0' * pad)
 
     i = 0
-    for x in range(0, width):
+    for x in range(12, width):
         for y in range(0, height):
             if i >= len(bit_array):
                 break
