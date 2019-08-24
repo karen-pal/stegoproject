@@ -147,9 +147,11 @@ def main():
 
     k = message_encode(filepath, 2, message)
     print("jajajaj ahora DECODIFICQAMOS1!!!!!!11")
-    msg = message_decode((os.path.splitext(filepath)[0] + "_lsb.png"), k)
+    msg = message_decode(filepath, k)
     print(msg)
 
+def lsb_pic(path):
+    return os.path.splitext(path)[0] + "_lsb.png"
 
 if __name__ == "__main__":
     main()
