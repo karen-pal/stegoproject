@@ -5,22 +5,20 @@
 # TODO:
 # agregar al principio cuanto leer para poder decodificar
 # ver encriptar el mensaje
-# parametro k del enunciado
 
 import base64
 import os
 import bitarray
-from PIL import Image
+from PIL import Image, ImageFile
+
+# Load truncated images too
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 def set_pixel(old_color, bit_array, i, k):
     old_color = bin(old_color)
     old_bits = old_color[:-k]
     new_chunk = bit_array[i:i+k].copy()
-    # new_chunk = map(str, new_chunk)
-
-    print(type(old_bits))
-    print(type(new_chunk))
 
     new_color = old_bits + ''.join(str(b) for b in new_chunk)
     return int(new_color, 2)
