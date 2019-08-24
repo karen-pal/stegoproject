@@ -1,10 +1,5 @@
-# Your algorithm should take as input the bitmap (type N, S, P, or T),
-# a positive int k,
-# and the hidden text t.
-
 # TODO:
 # agregar al principio cuanto leer para poder decodificar
-# ver encriptar el mensaje
 
 import base64
 import os
@@ -27,8 +22,8 @@ def set_pixel(old_color, bit_array, i, k):
 def message_decode(image, k):
     """ Decode a hidden message from the image.
 
-    :arg1: TODO
-    :returns: TODO
+    :image: string
+    :k: int
 
     """
     im = Image.open(image)
