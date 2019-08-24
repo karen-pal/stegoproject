@@ -53,9 +53,12 @@ def message_decode(image, k):
         str_byte = ''.join(str_byte.replace('0b', 'b').split('b'))
         chars.append(chr(int(str_byte, 2)))
 
+    msg = ''.join(chars).encode('ascii', 'ignore')
+
     # Don't forget that the message was base64-encoded
-    flag = base64.b64decode(''.join(chars).encode('ascii', 'ignore'))
-    return flag
+    decoded_msg = base64.b64decode(msg)
+
+    return decoded_msg.decode('ascii', 'ignore')
 
 
 def message_encode(image, k, hidden_text):
