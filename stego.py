@@ -27,19 +27,41 @@ def message_decode(image, k):
 
     """
     im = Image.open(image)
-
-    extracted = ''
-
     pixels = im.load()
 
+    # Extract length of message
+    msg_len = ""
+
+    for x in range(0,12):
+        red, green, blue = pixels[x,0]
+
+        msg_len += bin(red)[-1]
+        msg_len += bin(green)[-1]
+
+        if x == 11:
+            break
+
+        msg_len += bin(blue)[-1]
+
+    msg_len = int(msg_len, 2)
+
+    # Extract the message
+    extracted = ''
+
+    i = 0
     for x in range(12, im.width):
         for y in range(0, im.height):
+            if i == msg_len:
+                break
+
             r, g, b = pixels[x, y]
 
             # Store LSB of each color channel of each pixel
             extracted += bin(r)[-k:]
             extracted += bin(g)[-k:]
             extracted += bin(b)[-k:]
+
+            i += 1
 
     chars = []
     for i in range(int(len(extracted) / 8)):
