@@ -78,11 +78,11 @@ def message_decode(image, k):
     return decoded_msg.decode('ascii', 'ignore')
 
 
-def message_encode(image, k, hidden_text):
-    """ Encode the given message in the image, up to k bits (?).
+def message_encode(image, max_k, hidden_text):
+    """ Encode the given message in the image, up to max_k bits per channel.
 
         image: string
-        k: positive int
+        max_k: positive int
         hidden_text: string
     """
     encoded_message = base64.b64encode(hidden_text.encode('ascii'))
@@ -143,6 +143,11 @@ def message_encode(image, k, hidden_text):
     else:
         print("Message way too long for given image.")
         return 0
+
+    # Truncate the message to max_k
+    if k > max_k:
+        k = max_k
+        bit_array = bit_array[:k*total_pixels]
 
     # padding
     pad = len(bit_array) % k
