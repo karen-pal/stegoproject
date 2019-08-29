@@ -54,12 +54,12 @@ def message_decode(image, k):
             if i == msg_len:
                 break
 
-            r, g, b = pixels[x, y]
+            red, green, blue = pixels[x, y]
 
             # Store LSB of each color channel of each pixel
-            extracted += bin(r)[-k:]
-            extracted += bin(g)[-k:]
-            extracted += bin(b)[-k:]
+            extracted += bin(red)[-k:]
+            extracted += bin(green)[-k:]
+            extracted += bin(blue)[-k:]
 
             i += 1
 
