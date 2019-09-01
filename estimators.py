@@ -1,27 +1,58 @@
-import os
-from skimage import io
-import numpy
+import numpy as np
+import matplotlib.pyplot as plt
+from skimage import io, img_as_float
+from skimage import measure
+from textwrap import wrap
 
-from skimage import data, img_as_float, measure
-
-
-def mse(x, y):
-    return numpy.linalg.norm(x - y)
+import stego
 
 
-filename = 'wall.png'
-filename_lsb = 'wall_lsb.png'
+def image_measurements(img, img_lsb):
+    file = io.imread(img)
+    file_lsb = io.imread(img_lsb)
 
-file1 = io.imread(filename)
-file1_lsb = io.imread(filename_lsb)
+    mse = measure.compare_mse(file, file_lsb)
+    ssim = measure.compare_ssim(file, file_lsb,
+                                data_range=file.max() - file.min(),
+                                multichannel=True)
+    psnr = measure.compare_psnr(file, file_lsb,
+                                data_range=file.max()-file.min())
+    return (mse, ssim, psnr)
 
-mse1 = measure.compare_mse(file1, file1_lsb)
-ssim1 = measure.compare_ssim(file1, file1_lsb,
-                             data_range=file1.max() - file1.min(),
-                             multichannel=True)
-psnr1 = measure.compare_psnr(file1, file1_lsb,
-                             data_range=file1.max()-file1.min())
 
-print("mse:", mse1)
-print("ssim1:", ssim1)
-print("psnr:", psnr1)
+k = 3
+msg = "uwu" * 100000
+used_k = stego.message_encode('img/T1.png', k, msg)
+decoded_msg = stego.message_decode('img/T1_lsb.png', used_k)
+
+img = img_as_float(io.imread('img/T1.png'))
+img_lsb = img_as_float(io.imread('img/T1_lsb.png'))
+
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4),
+                         sharex=True, sharey=True)
+ax = axes.ravel()
+
+label = 'Text to encode: {}\nDecoded text: {}'
+label_lsb = 'MSE: {:.2f}, SSIM: {:.2f}, PSNR: {:.2f}, k: {}'
+
+mse, ssim, psnr = image_measurements('img/T1.png', 'img/T1_lsb.png')
+
+msg = '\n'.join(wrap(msg, 50))
+if len(msg) > 100:
+    msg = msg[:100]
+
+decoded_msg = '\n'.join(wrap(decoded_msg, 50))
+if len(decoded_msg) > 100:
+    decoded_msg = decoded_msg[:100]
+
+ax[0].imshow(img, cmap=plt.cm.gray, vmin=0, vmax=1)
+ax[0].set_xlabel(label.format(msg, decoded_msg))
+ax[0].set_title('Original image')
+
+ax[1].imshow(img_lsb, cmap=plt.cm.gray, vmin=0, vmax=1)
+ax[1].set_xlabel(label_lsb.format(mse, ssim, psnr, k))
+ax[1].set_title('Stego image')
+
+plt.tight_layout()
+plt.show()
+plt.savefig('test' + image_name + 'k:' + k + '.png')
