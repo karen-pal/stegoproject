@@ -29,8 +29,8 @@ def message_decode(image, k):
     # Extract length of message
     msg_len = ""
 
-    for x in range(0,12):
-        red, green, blue = pixels[x,0]
+    for x in range(0, 12):
+        red, green, blue = pixels[x, 0]
 
         msg_len += bin(red)[-1]
         msg_len += bin(green)[-1]
@@ -197,8 +197,10 @@ def main():
     msg = message_decode(filepath, k)
     print(msg)
 
+
 def lsb_pic(path):
     return os.path.splitext(path)[0] + "_lsb.png"
+
 
 if __name__ == "__main__":
     main()
