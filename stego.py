@@ -70,7 +70,10 @@ def message_decode(image, k):
     msg = ''.join(chars).encode('ascii', 'ignore')
 
     # Don't forget that the message was base64-encoded
-    decoded_msg = base64.b64decode(msg)
+    try:
+        decoded_msg = base64.b64decode(msg)
+    except:
+        return msg.decode('ascii', 'ignore')
 
     return decoded_msg.decode('ascii', 'ignore')
 
