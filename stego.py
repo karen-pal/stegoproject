@@ -1,6 +1,3 @@
-# TODO:
-# agregar al principio cuanto leer para poder decodificar
-
 import base64
 import os
 import bitarray
