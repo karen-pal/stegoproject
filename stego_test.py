@@ -35,7 +35,7 @@ class TestStego(unittest.TestCase):
                          format(color, bit_array[i], k))
 
     def test_message_encode(self):
-        long_msg = "long boi" * 100000
+        long_msg = "long message" * 100000
 
         for pic in PICS:
             # Expected K
