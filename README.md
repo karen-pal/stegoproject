@@ -11,6 +11,12 @@ the MSE, SSIM, and PSNR measurements, as well as the performance of the
 encoding and decoding algorithm. It also generates the plots shown in the
 report.
 
+The `stego_test.py` file is for internal testing purposes.
+
+`img` contains both the cover images used, and generated graphs. `fail`
+includes the corner cases in which the algorithm doesn't properly
+decode the steganographic message.
+
 ## Installation
 The dependencies can be installed with `pip` or `pip3` in case Python 2
 is the default in your system:
