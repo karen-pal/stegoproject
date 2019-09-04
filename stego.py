@@ -195,10 +195,12 @@ def main():
     message = input("Enter SECRET message to hid in image:  ")
     filepath = input("Enter path to file:  ")
 
-    k = message_encode(filepath, 2, message)
-    print("jajajaj ahora DECODIFICQAMOS1!!!!!!11")
+    print("Encoding message", message, "with k = 1...")
+    k = message_encode(filepath, 1, message)
+
+    print("Decoding message...")
     msg = message_decode(filepath, k)
-    print(msg)
+    print("Decoded message:", msg)
 
 
 def lsb_pic(path):
