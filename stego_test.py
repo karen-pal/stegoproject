@@ -6,10 +6,20 @@ import unittest
 import stego
 
 PICS = [
-    'wall.png',
-    'wall2.png',
-    'wall3.png',
-    'thewall.png',
+    'img/N1.png',
+    'img/N2.png',
+    'img/N3.png',
+    'img/N4.png',
+    'img/P1.jpg',
+    'img/P2.jpg',
+    'img/P3.jpg',
+    'img/P4.png',
+    'img/S1.jpg',
+    'img/S2.png',
+    'img/T1.png',
+    'img/T2.png',
+    'img/T3.png',
+    'img/T4.png',
 ]
 
 
