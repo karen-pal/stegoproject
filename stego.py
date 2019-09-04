@@ -194,9 +194,10 @@ def main():
     """ Main function """
     message = input("Enter SECRET message to hid in image:  ")
     filepath = input("Enter path to file:  ")
+    k = int(input("Enter a positive number: "))
 
-    print("Encoding message", message, "with k = 1...")
-    k = message_encode(filepath, 1, message)
+    print("Encoding message '{}' with k = {}...".format(message, k))
+    k = message_encode(filepath, k, message)
 
     print("Decoding message...")
     msg = message_decode(filepath, k)
