@@ -94,18 +94,18 @@ def image_analysis_graph(img_name, k, msg):
 
 PICS = [
     'img/N1.png',
-    # 'img/N2.png',
-    # 'img/N3.png',
-    # 'img/N4.png',
-    # 'img/P1.jpg',
-    # 'img/P2.jpg',
-    # 'img/P3.jpg',
-    # 'img/P4.png',
-    # 'img/S1.jpg',
-    # 'img/S2.png',
-    # 'img/T1.png',
-    # 'img/T2.png',
-    # 'img/T3.png',
+    'img/N2.png',
+    'img/N3.png',
+    'img/N4.png',
+    'img/P1.jpg',
+    'img/P2.jpg',
+    'img/P3.jpg',
+    'img/P4.png',
+    'img/S1.jpg',
+    'img/S2.png',
+    'img/T1.png',
+    'img/T2.png',
+    'img/T3.png',
     'img/T4.png',
 ]
 
@@ -168,20 +168,43 @@ for j, msg in enumerate(MESSAGES):
     plt.close('all')
 
 # Time
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4),
-                         sharex=True, sharey=False)
-axes[0].set_title("Encoding Time")
-axes[0].set_ylabel("Secods")
-
-axes[1].set_title("Decoding Time")
-axes[1].set_ylabel("Seconds")
-
 for j, msg in enumerate(MESSAGES):
-    axes[0].plot(total_img,
-                 ENCODE_TIMES[msg], c=COLORS[j], alpha=0.5)
-    axes[1].plot(total_img,
-                 DECODE_TIMES[msg], c=COLORS[j], alpha=0.5)
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4),
+                             sharex=True, sharey=False, constrained_layout=True)
+    axes[0].set_title("Encoding Time")
+    axes[0].set_ylabel("Secods")
 
-plt.tight_layout()
-plt.savefig("time.png")
-plt.close('all')
+    axes[1].set_title("Decoding Time")
+    axes[1].set_ylabel("Seconds")
+
+    for i, dic in enumerate([ENCODE_TIMES, DECODE_TIMES]):
+        axes[i].plot(range(1, len(dic[msg]) + 1), dic[msg], 'o',
+                     c=COLORS[j], alpha=0.5)
+        axes[i].ticklabel_format(useOffset=False)
+
+    # Cut the long message
+    if j == 3:
+        msg = msg[:15] + "[..]"
+
+    fig.suptitle(msg)
+    plt.savefig("time" + str(j) + ".png")
+    plt.close('all')
+
+avg_mse = []
+avg_ssim = []
+avg_psnr = []
+avg_encode = []
+avg_decode = []
+
+for msg in MESSAGES:
+    avg_mse += MSE[msg]
+    avg_ssim += SSIM[msg]
+    avg_psnr += PSNR[msg]
+    avg_encode += ENCODE_TIMES[msg]
+    avg_decode += DECODE_TIMES[msg]
+
+print("Average MSE:", np.mean(avg_mse))
+print("Average SSIM:", np.mean(avg_ssim))
+print("Average PSNR:", np.mean(avg_psnr))
+print("Average ENCODE_TIMES:", np.mean(avg_encode))
+print("Average DECODE_TIMES:", np.mean(avg_decode))
